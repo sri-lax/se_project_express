@@ -35,9 +35,7 @@ const getUser = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(404).send({ message: "User not found" });
       } //handle the cast error
-      else {
-        return res.status(400).send({ message: "Invalid user ID format" });
-      }
+      return res.status(400).send({ message: "Invalid user ID format" });
     });
 };
 

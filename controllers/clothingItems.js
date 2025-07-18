@@ -14,7 +14,7 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: "Error from createItem", e });
+      return res.status(500).send({ message: "Error from createItem", err });
     });
 };
 
@@ -29,26 +29,27 @@ const getItems = (req, res) => {
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageId } = req.body;
-  console.log(itemId, imageId);
-  ClothingItem.findByIdAndUpdate(itemId, { set: { imageURL } })
+  const { imageURL } = req.body;
+  console.log(itemId, imageURL);
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: "Error from updateItem", e });
+      return res.status(500).send({ message: "Error from updateItem", err });
     });
 };
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-  console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => res.status(204).send({}))
+    .orFail(() => new Error("Item not found"))
+    .then(() => res.sendStatus(204))
     .catch((err) => {
-      console.error(err);
-      return res.status(500).send({ message: "Error from deleteItem", e });
+      console.error("Delete Error:", err);
+      res
+        .status(500)
+        .send({ message: "Error from deleteItem", error: err.message });
     });
 };
 
