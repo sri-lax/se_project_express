@@ -12,6 +12,7 @@ mongoose
   .catch((e) => console.error(e));
 
 app.use(express.json());
+
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {

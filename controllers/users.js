@@ -1,7 +1,5 @@
 const User = require("../models/user");
 
-//GET /users
-
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
@@ -29,12 +27,12 @@ const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail()
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res.status(404).send({ message: "User not found" });
-      } //handle the cast error
+      }
       return res.status(400).send({ message: "Invalid user ID format" });
     });
 };
