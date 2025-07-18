@@ -18,6 +18,9 @@ const createUser = (req, res) => {
       if (err.name === "") {
         return res.status(400).send({ message: err.message });
       }
+      if (err.name.length < 2 || err.name.length > 30) {
+        return res.status(400).send({ message: err.message });
+      }
 
       return res.status(500).send({ message: err.message });
     });
