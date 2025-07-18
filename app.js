@@ -1,10 +1,8 @@
-const e = require("express");
 const express = require("express");
 const mongoose = require("mongoose");
-
-const app = express();
-
+const mainRouter = require("./routes/index");
 const { PORT = 3001 } = process.env;
+const app = express();
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
@@ -13,6 +11,9 @@ mongoose
   })
   .catch((e) => console.error(e));
 
-app.listen(3001, () => {
+app.use(express.json());
+app.use("/", mainRouter);
+
+app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
