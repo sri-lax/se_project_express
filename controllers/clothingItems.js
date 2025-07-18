@@ -45,7 +45,7 @@ const updateItem = (req, res) => {
           .status(400)
           .send({ message: "Invalid update data", error: err.message });
       }
-      res
+      return res
         .status(500)
         .send({ message: "Error from updateItem", error: err.message });
     });
