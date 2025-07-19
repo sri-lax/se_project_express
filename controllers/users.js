@@ -11,18 +11,12 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
+
   User.create({ name, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "") {
-        return res.status(400).send({ message: err.message });
-      }
-      if (err.name.length < 2 || err.name.length > 30) {
-        return res.status(400).send({ message: err.message });
-      }
-
-      return res.status(500).send({ message: err.message });
+      console.error("Create User Error:", err);
+      next(err); // Pass error to global handler for consistent status codes
     });
 };
 

@@ -38,7 +38,7 @@ app.use((err, req, res, next) => {
       .send({ message: "Invalid ID format", error: err.message });
   }
 
-  res
+  return res
     .status(500)
     .send({ message: "Internal server error", error: err.message });
 });
