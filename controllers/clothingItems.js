@@ -5,7 +5,7 @@ const createItem = (req, res) => {
 
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(201).send({ data: item }))
     .catch((err) => {
       console.error("Create Error:", err);
@@ -59,10 +59,89 @@ const deleteItem = (req, res) => {
     .then(() => res.sendStatus(204))
     .catch((err) => {
       console.error("Delete Error:", err);
+      if (err.name === "CastError") {
+        return res
+          .status(400)
+          .send({ message: "Invalid item ID format", error: err.message });
+      }
+      if (err.message === "Item not found") {
+        return res
+          .status(404)
+          .send({ message: "Item not found", error: err.message });
+      }
       res
         .status(500)
         .send({ message: "Error from deleteItem", error: err.message });
     });
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem };
+const likeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  )
+    .orFail(() => new Error("Item not found"))
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      console.error("Like Error:", err);
+
+      if (err.name === "CastError") {
+        return res
+          .status(400)
+          .send({ message: "Invalid item ID format", error: err.message });
+      }
+
+      if (err.message === "Item not found") {
+        return res
+          .status(404)
+          .send({ message: "Item not found", error: err.message });
+      }
+
+      return res
+        .status(500)
+        .send({ message: "Error from likeItem", error: err.message });
+    });
+};
+
+const unlikeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  )
+    .orFail(() => new Error("Item not found"))
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      console.error("Unlike Error:", err);
+
+      if (err.name === "CastError") {
+        return res
+          .status(400)
+          .send({ message: "Invalid item ID format", error: err.message });
+      }
+
+      if (err.message === "Item not found") {
+        return res
+          .status(404)
+          .send({ message: "Item not found", error: err.message });
+      }
+
+      return res
+        .status(500)
+        .send({ message: "Error from unlikeItem", error: err.message });
+    });
+};
+
+module.exports = {
+  createItem,
+  getItems,
+  updateItem,
+  deleteItem,
+  likeItem,
+  unlikeItem,
+};
