@@ -69,7 +69,7 @@ const deleteItem = (req, res) => {
           .status(404)
           .send({ message: "Item not found", error: err.message });
       }
-      res
+      return res
         .status(500)
         .send({ message: "Error from deleteItem", error: err.message });
     });

@@ -22,6 +22,27 @@ app.use((req, res, next) => {
 });
 app.use("/", mainRouter);
 
+//  Global Error Handler Middleware
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+
+  if (err.name === "ValidationError") {
+    return res
+      .status(400)
+      .send({ message: "Validation failed", error: err.message });
+  }
+
+  if (err.name === "CastError") {
+    return res
+      .status(400)
+      .send({ message: "Invalid ID format", error: err.message });
+  }
+
+  res
+    .status(500)
+    .send({ message: "Internal server error", error: err.message });
+});
+
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
