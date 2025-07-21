@@ -1,5 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const { STATUS_CODES } = require("./utils/constants");
+const { STATUS_CODES } = require("../utils/constants");
 
 const createItem = (req, res) => {
   console.log("Request body:", req.body);
@@ -7,7 +7,7 @@ const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
-    .then((item) => res.status(201).send({ data: item }))
+    .then((item) => res.status(STATUS_CODES.CREATED).send({ data: item }))
     .catch((err) => {
       console.error("Create Error:", err);
       if (err.name === "ValidationError") {
@@ -23,10 +23,12 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.status(STATUS_CODES.OK).send(items))
     .catch((err) => {
       console.error("Get Error:", err);
-      res.status(500).send({ message: "GetItem Failed", error: err.message });
+      res
+        .status(STATUS_CODES.DEFAULT)
+        .send({ message: "GetItem Failed", error: err.message });
     });
 };
 
@@ -38,7 +40,7 @@ const updateItem = (req, res) => {
 
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
     .orFail(() => new Error("Item not found"))
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(STATUS_CODES.OK).send({ data: item }))
     .catch((err) => {
       console.error("Update Error:", err);
       if (err.name === "ValidationError") {
@@ -85,7 +87,7 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => new Error("Item not found"))
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(STATUS_CODES.OK).send({ data: item }))
     .catch((err) => {
       console.error("Like Error:", err);
 
@@ -116,7 +118,7 @@ const unlikeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => new Error("Item not found"))
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => res.status(STATUS_CODES.OK).send({ data: item }))
     .catch((err) => {
       console.error("Unlike Error:", err);
 

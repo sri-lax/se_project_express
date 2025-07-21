@@ -1,4 +1,4 @@
-const { STATUS_CODES } = require("./utils/constants");
+const { STATUS_CODES } = require("../utils/constants");
 
 const express = require("express");
 const mongoose = require("mongoose");

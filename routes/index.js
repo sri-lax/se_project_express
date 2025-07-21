@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { STATUS_CODES } = require("./utils/constants");
+const { STATUS_CODES } = require("../utils/constants");
 
 const clothingItem = require("./clothingItems");
 
