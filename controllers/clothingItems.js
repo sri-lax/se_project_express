@@ -1,4 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
+const { STATUS_CODES } = require("./utils/constants");
 
 const createItem = (req, res) => {
   console.log("Request body:", req.body);
@@ -11,11 +12,11 @@ const createItem = (req, res) => {
       console.error("Create Error:", err);
       if (err.name === "ValidationError") {
         return res
-          .status(400)
+          .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: "Invalid item data", error: err.message });
       }
       return res
-        .status(500)
+        .status(STATUS_CODES.DEFAULT)
         .send({ message: "Error from createItem", error: err.message });
     });
 };
@@ -42,11 +43,11 @@ const updateItem = (req, res) => {
       console.error("Update Error:", err);
       if (err.name === "ValidationError") {
         return res
-          .status(400)
+          .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: "Invalid update data", error: err.message });
       }
       return res
-        .status(500)
+        .status(STATUS_CODES.DEFAULT)
         .send({ message: "Error from updateItem", error: err.message });
     });
 };
@@ -61,16 +62,16 @@ const deleteItem = (req, res) => {
       console.error("Delete Error:", err);
       if (err.name === "CastError") {
         return res
-          .status(400)
+          .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: "Invalid item ID format", error: err.message });
       }
       if (err.message === "Item not found") {
         return res
-          .status(404)
+          .status(STATUS_CODES.NOT_FOUND)
           .send({ message: "Item not found", error: err.message });
       }
       return res
-        .status(500)
+        .status(STATUS_CODES.DEFAULT)
         .send({ message: "Error from deleteItem", error: err.message });
     });
 };
@@ -90,18 +91,18 @@ const likeItem = (req, res) => {
 
       if (err.name === "CastError") {
         return res
-          .status(400)
+          .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: "Invalid item ID format", error: err.message });
       }
 
       if (err.message === "Item not found") {
         return res
-          .status(404)
+          .status(STATUS_CODES.NOT_FOUND)
           .send({ message: "Item not found", error: err.message });
       }
 
       return res
-        .status(500)
+        .status(STATUS_CODES.DEFAULT)
         .send({ message: "Error from likeItem", error: err.message });
     });
 };
@@ -121,18 +122,18 @@ const unlikeItem = (req, res) => {
 
       if (err.name === "CastError") {
         return res
-          .status(400)
+          .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: "Invalid item ID format", error: err.message });
       }
 
       if (err.message === "Item not found") {
         return res
-          .status(404)
+          .status(STATUS_CODES.NOT_FOUND)
           .send({ message: "Item not found", error: err.message });
       }
 
       return res
-        .status(500)
+        .status(STATUS_CODES.DEFAULT)
         .send({ message: "Error from unlikeItem", error: err.message });
     });
 };

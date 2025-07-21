@@ -1,3 +1,5 @@
+const { STATUS_CODES } = require("./utils/constants");
+
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
@@ -28,18 +30,18 @@ app.use((err, req, res, next) => {
 
   if (err.name === "ValidationError") {
     return res
-      .status(400)
+      .status(STATUS_CODES.BAD_REQUEST)
       .send({ message: "Validation failed", error: err.message });
   }
 
   if (err.name === "CastError") {
     return res
-      .status(400)
+      .status(STATUS_CODES.BAD_REQUEST)
       .send({ message: "Invalid ID format", error: err.message });
   }
 
   return res
-    .status(500)
+    .status(STATUS_CODES.DEFAULT)
     .send({ message: "Internal server error", error: err.message });
 });
 
