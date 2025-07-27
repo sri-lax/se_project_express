@@ -1,10 +1,11 @@
-const { STATUS_CODES } = require("./utils/constants");
-const auth = require("./middlewares/auth");
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+
+const { STATUS_CODES } = require("./utils/constants");
+const auth = require("./middlewares/auth");
 const mainRouter = require("./routes/index");
 const { login, createUser } = require("./controllers/users");
-const cors = require("cors");
 const userRouter = require("./routes/users");
 
 const { PORT = 3001 } = process.env;
