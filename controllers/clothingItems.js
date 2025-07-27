@@ -57,22 +57,35 @@ const updateItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail(() => new Error("Item not found"))
-    .then(() => res.sendStatus(204))
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        return res
+          .status(STATUS_CODES.FORBIDDEN)
+          .send({ message: "You do not have permission to delete this item." });
+      }
+
+      return ClothingItem.findByIdAndDelete(itemId).then(() =>
+        res.sendStatus(204)
+      );
+    })
     .catch((err) => {
       console.error("Delete Error:", err);
+
       if (err.name === "CastError") {
         return res
           .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: "Invalid item ID format", error: err.message });
       }
+
       if (err.message === "Item not found") {
         return res
           .status(STATUS_CODES.NOT_FOUND)
           .send({ message: "Item not found", error: err.message });
       }
-      return res
+
+      res
         .status(STATUS_CODES.DEFAULT)
         .send({ message: "Error from deleteItem", error: err.message });
     });
