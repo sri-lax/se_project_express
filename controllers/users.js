@@ -5,15 +5,6 @@ const User = require("../models/user");
 const { STATUS_CODES } = require("../utils/constants");
 const { JWT_SECRET } = require("../utils/config");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(STATUS_CODES.OK).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res.status(STATUS_CODES.DEFAULT).send({ message: err.message });
-    });
-};
-
 const createUser = (req, res) => {
   const { email, password, name, avatar } = req.body;
 
@@ -31,7 +22,7 @@ const createUser = (req, res) => {
       const userWithoutPassword = user.toObject();
       delete userWithoutPassword.password;
 
-      res.status(STATUS_CODES.CREATED).send(userWithoutPassword);
+      return res.status(STATUS_CODES.CREATED).send(userWithoutPassword);
     })
     .catch((err) => {
       console.error("Create User Error:", err);
@@ -66,7 +57,7 @@ const getCurrentUser = (req, res) => {
           .send({ message: "User not found" });
       }
       return res
-        .status(STATUS_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.DEFAULT)
         .send({ message: "Invalid user ID format" });
     });
 };
@@ -74,19 +65,31 @@ const getCurrentUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res
+      .status(STATUS_CODES.BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
+
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
 
-      res.status(STATUS_CODES.OK).send({ token });
+      return res.status(STATUS_CODES.OK).send({ token });
     })
     .catch((err) => {
       console.error("Login Error:", err);
-      res
-        .status(STATUS_CODES.UNAUTHORIZED)
-        .send({ message: "Invalid email or password" });
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(STATUS_CODES.UNAUTHORIZED)
+          .send({ message: "Invalid email or password" });
+      }
+
+      return res
+        .status(STATUS_CODES.DEFAULT)
+        .send({ message: "Internal server error" });
     });
 };
 
@@ -125,7 +128,6 @@ const updateUser = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   createUser,
   getCurrentUser,
   login,

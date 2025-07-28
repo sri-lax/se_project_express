@@ -39,6 +39,11 @@ const clothingItem = new mongoose.Schema({
     ref: "user",
     required: true,
   },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("clothingItems", clothingItem);

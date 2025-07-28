@@ -1,8 +1,9 @@
 const router = require("express").Router();
+const auth = require("../middlewares/auth");
 const { getCurrentUser, updateUser } = require("../controllers/users");
 
 // Route to get the logged-in user's data
-router.get("/me", getCurrentUser);
-router.patch("/me", updateUser);
+router.get("/me", auth, getCurrentUser);
+router.patch("/me", auth, updateUser);
 
 module.exports = router;

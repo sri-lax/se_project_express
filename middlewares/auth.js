@@ -12,13 +12,12 @@ module.exports = (req, res, next) => {
   }
 
   const token = authorization.replace("Bearer ", "");
-  console.log("🔎 Extracted token:", token);
+  // console.log("🔎 Extracted token:", token);
 
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-
-    req.user = payload; //  Save token payload to request
-    next(); //  Proceed to next middleware or route handler
+    req.user = payload;
+    return next();
   } catch (err) {
     return res
       .status(STATUS_CODES.UNAUTHORIZED)
