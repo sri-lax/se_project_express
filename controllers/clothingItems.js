@@ -24,9 +24,7 @@ const getItems = (req, res) => {
     .then((items) => res.status(STATUS_CODES.OK).send(items))
     .catch((err) => {
       console.error("Get Error:", err);
-      res
-        .status(STATUS_CODES.DEFAULT)
-        .send({ message: "GetItem Failed", error: err.message });
+      res.status(STATUS_CODES.DEFAULT).send({ message: "GetItem Failed" });
     });
 };
 
@@ -55,18 +53,18 @@ const deleteItem = (req, res) => {
       if (err.name === "CastError") {
         return res
           .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: "Invalid item ID format", error: err.message });
+          .send({ message: "Invalid item ID format" });
       }
 
       if (err.message === "Item not found") {
         return res
           .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: "Item not found", error: err.message });
+          .send({ message: "Item not found" });
       }
 
       return res
         .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Error from deleteItem", error: err.message });
+        .send({ message: "Error from deleteItem" });
     });
 };
 
@@ -86,18 +84,18 @@ const likeItem = (req, res) => {
       if (err.name === "CastError") {
         return res
           .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: "Invalid item ID format", error: err.message });
+          .send({ message: "Invalid item ID format" });
       }
 
       if (err.message === "Item not found") {
         return res
           .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: "Item not found", error: err.message });
+          .send({ message: "Item not found" });
       }
 
       return res
         .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Error from likeItem", error: err.message });
+        .send({ message: "Error from likeItem" });
     });
 };
 
@@ -117,18 +115,18 @@ const unlikeItem = (req, res) => {
       if (err.name === "CastError") {
         return res
           .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: "Invalid item ID format", error: err.message });
+          .send({ message: "Invalid item ID format" });
       }
 
       if (err.message === "Item not found") {
         return res
           .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: "Item not found", error: err.message });
+          .send({ message: "Item not found" });
       }
 
       return res
         .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Error from unlikeItem", error: err.message });
+        .send({ message: "Error from unlikeItem" });
     });
 };
 
