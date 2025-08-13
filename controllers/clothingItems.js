@@ -21,7 +21,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(STATUS_CODES.OK).send(items))
+    .then((items) => res.status(STATUS_CODES.OK).send({ data: items }))
     .catch((err) => {
       console.error("Get Error:", err);
       res.status(STATUS_CODES.DEFAULT).send({ message: "GetItem Failed" });
