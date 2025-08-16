@@ -4,6 +4,9 @@ const { STATUS_CODES } = require("../utils/constants");
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
+  console.log("🧑 Creating item for user:", req.user);
+  console.log("🧑 User ID:", req.user._id);
+
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(STATUS_CODES.CREATED).send({ data: item }))
     .catch((err) => {

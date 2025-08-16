@@ -21,7 +21,7 @@ app.use(express.json());
 app.use("/", mainRouter);
 
 //  Global Error Handler Middleware
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error("Global Error Handler:", err);
 
   if (err.name === "ValidationError") {
