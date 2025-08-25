@@ -1,28 +1,38 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { errors } = require("celebrate");
 
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { STATUS_CODES } = require("./utils/constants");
 const mainRouter = require("./routes/index");
 
-const { PORT = 3001 } = process.env;
+const { PORT = 3001, MONGO_URI } = process.env;
 const app = express();
+
+if (!MONGO_URI) {
+  throw new Error("Missing MONGO_URI in environment variables");
+}
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {})
-  .catch((e) => console.error(e));
+  .connect(MONGO_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((e) => console.error("MongoDB connection error:", e));
 
 app.use(cors());
 app.use(express.json());
 
-// Protected routes
+app.use(requestLogger);
 app.use("/", mainRouter);
 
-//  Global Error Handler Middleware
+app.use(errorLogger);
+
+app.use(errors());
 app.use((err, req, res, next) => {
-  console.error("Global Error Handler:", err);
+  console.error("Global Error Handler:", err.stack || err);
 
   if (err.name === "ValidationError") {
     return res
@@ -42,6 +52,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Listening on port ${PORT}`);
 });
