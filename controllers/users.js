@@ -4,126 +4,87 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { STATUS_CODES } = require("../utils/constants");
 const { JWT_SECRET } = require("../utils/config");
+const {
+  BadRequestError,
+  UnauthorizedError,
+  ConflictError,
+  NotFoundError,
+  InternalServerError,
+} = require("../utils/errors");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { email, password, name, avatar } = req.body;
 
   bcrypt
     .hash(password, 10)
     .then((hashedPassword) =>
-      User.create({
-        email,
-        password: hashedPassword,
-        name,
-        avatar,
-      })
+      User.create({ email, password: hashedPassword, name, avatar })
     )
     .then((user) => {
       const userWithoutPassword = user.toObject();
       delete userWithoutPassword.password;
-
-      return res.status(STATUS_CODES.CREATED).send(userWithoutPassword);
+      res.status(201).send(userWithoutPassword);
     })
     .catch((err) => {
-      console.error("Create User Error:", err);
-
       if (err.code === 11000) {
-        return res
-          .status(STATUS_CODES.CONFLICT)
-          .send({ message: "Email already exists" });
+        return next(new ConflictError("Email already exists"));
       }
-
       if (err.name === "ValidationError") {
-        return res
-          .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: "Invalid user data" });
+        return next(new BadRequestError("Invalid user data"));
       }
-
-      return res
-        .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Internal server error" });
+      return next(new InternalServerError("Error creating user"));
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail()
-    .then((user) => res.status(STATUS_CODES.OK).send(user))
+    .orFail(() => new NotFoundError("User not found"))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: "User not found" });
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Invalid user ID format"));
       }
-      return res
-        .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Invalid user ID format" });
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(STATUS_CODES.BAD_REQUEST)
-      .send({ message: "Email and password are required" });
+    return next(new BadRequestError("Email and password are required"));
   }
 
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-
-      return res.status(STATUS_CODES.OK).send({ token });
+      res.status(200).send({ token });
     })
     .catch((err) => {
-      console.error("Login Error:", err);
       if (err.message === "Incorrect email or password") {
-        return res
-          .status(STATUS_CODES.UNAUTHORIZED)
-          .send({ message: "Invalid email or password" });
+        return next(new UnauthorizedError("Invalid email or password"));
       }
-
-      return res
-        .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Internal server error" });
+      return next(new InternalServerError("Login failed"));
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
     req.user._id,
     { name, avatar },
-    {
-      new: true,
-      runValidators: true,
-    }
+    { new: true, runValidators: true }
   )
-    .orFail()
-    .then((updatedUser) => res.status(STATUS_CODES.OK).send(updatedUser))
+    .orFail(() => new NotFoundError("User not found"))
+    .then((updatedUser) => res.status(200).send(updatedUser))
     .catch((err) => {
-      console.error("Update User Error:", err);
-
       if (err.name === "ValidationError") {
-        return res
-          .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: "Invalid profile data" });
+        return next(new BadRequestError("Invalid profile data"));
       }
-
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: "User not found" });
-      }
-
-      return res
-        .status(STATUS_CODES.DEFAULT)
-        .send({ message: "Internal server error" });
+      return next(err);
     });
 };
 

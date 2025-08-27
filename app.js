@@ -1,4 +1,5 @@
 require("dotenv").config();
+const errorHandler = require("./middlewares/error-handler");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -35,28 +36,9 @@ app.get("/crash-test", () => {
 
 app.use("/", mainRouter);
 
-app.use(errorLogger);
-
 app.use(errors());
-app.use((err, req, res, next) => {
-  console.error("Global Error Handler:", err.stack || err);
-
-  if (err.name === "ValidationError") {
-    return res
-      .status(STATUS_CODES.BAD_REQUEST)
-      .send({ message: "Validation failed", error: err.message });
-  }
-
-  if (err.name === "CastError") {
-    return res
-      .status(STATUS_CODES.BAD_REQUEST)
-      .send({ message: "Invalid ID format", error: err.message });
-  }
-
-  return res
-    .status(STATUS_CODES.DEFAULT)
-    .send({ message: "Internal server error", error: err.message });
-});
+app.use(errorLogger);
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
