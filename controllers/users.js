@@ -2,15 +2,19 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
-const { STATUS_CODES } = require("../utils/constants");
 const { JWT_SECRET } = require("../utils/config");
-const {
-  BadRequestError,
-  UnauthorizedError,
-  ConflictError,
-  NotFoundError,
-  InternalServerError,
-} = require("../utils/errors");
+// const {
+//   BadRequestError,
+//   UnauthorizedError,
+//   ConflictError,
+//   NotFoundError,
+//   InternalServerError,
+// } = require("../utils/errors");
+const BadRequestError = require("../utils/errors/BadRequestError");
+const ConflictError = require("../utils/errors/ConflictError");
+const NotFoundError = require("../utils/errors/NotFoundError");
+const InternalServerError = require("../utils/errors/InternalServerError");
+const UnauthorizedError = require("../utils/errors/UnauthorizedError");
 
 const createUser = (req, res, next) => {
   const { email, password, name, avatar } = req.body;
@@ -55,12 +59,12 @@ const login = (req, res, next) => {
     return next(new BadRequestError("Email and password are required"));
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password) // ✅ return added here
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.status(200).send({ token });
+      return res.status(200).send({ token }); // ✅ consistent return
     })
     .catch((err) => {
       if (err.message === "Incorrect email or password") {

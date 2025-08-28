@@ -1,13 +1,11 @@
 require("dotenv").config();
-const errorHandler = require("./middlewares/error-handler");
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const { errors } = require("celebrate");
 
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-const { STATUS_CODES } = require("./utils/constants");
+const errorHandler = require("./middlewares/error-handler");
 const mainRouter = require("./routes/index");
 
 const { PORT = 3001, MONGO_URI } = process.env;
@@ -25,7 +23,6 @@ mongoose
 
 app.use(cors());
 app.use(express.json());
-
 app.use(requestLogger);
 
 app.get("/crash-test", () => {

@@ -1,19 +1,22 @@
 const ClothingItem = require("../models/clothingItem");
-const { STATUS_CODES } = require("../utils/constants");
-const {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-  InternalServerError,
-} = require("../utils/errors");
+// const {
+//   BadRequestError,
+//   ForbiddenError,
+//   NotFoundError,
+//   InternalServerError,
+// } = require("../utils/errors");
+const BadRequestError = require("../utils/errors/BadRequestError");
+const ForbiddenError = require("../utils/errors/ForbiddenError");
+const NotFoundError = require("../utils/errors/NotFoundError");
+const InternalServerError = require("../utils/errors/InternalServerError");
 
 const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(201).send({ data: item }))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
+    .catch((error) => {
+      if (error.name === "ValidationError") {
         return next(new BadRequestError("Invalid item data"));
       }
       return next(new InternalServerError("Error creating item"));
@@ -23,7 +26,9 @@ const createItem = (req, res, next) => {
 const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send({ data: items }))
-    .catch((err) => next(new InternalServerError("Failed to fetch items")));
+    .catch((error) =>
+      next(new InternalServerError(`Failed to fetch items: ${error.message}`))
+    );
 };
 
 const deleteItem = (req, res, next) => {
@@ -44,11 +49,11 @@ const deleteItem = (req, res, next) => {
           .send({ message: "Item successfully deleted", data: itemId })
       );
     })
-    .catch((err) => {
-      if (err.name === "CastError") {
+    .catch((error) => {
+      if (error.name === "CastError") {
         return next(new BadRequestError("Invalid item ID format"));
       }
-      return next(err);
+      return next(error);
     });
 };
 
@@ -62,11 +67,11 @@ const likeItem = (req, res, next) => {
   )
     .orFail(() => new NotFoundError("Item not found"))
     .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => {
-      if (err.name === "CastError") {
+    .catch((error) => {
+      if (error.name === "CastError") {
         return next(new BadRequestError("Invalid item ID format"));
       }
-      return next(err);
+      return next(error);
     });
 };
 
@@ -80,11 +85,11 @@ const unlikeItem = (req, res, next) => {
   )
     .orFail(() => new NotFoundError("Item not found"))
     .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => {
-      if (err.name === "CastError") {
+    .catch((error) => {
+      if (error.name === "CastError") {
         return next(new BadRequestError("Invalid item ID format"));
       }
-      return next(err);
+      return next(error);
     });
 };
 

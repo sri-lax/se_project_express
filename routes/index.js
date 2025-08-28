@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const { STATUS_CODES } = require("../utils/constants");
 const clothingItem = require("./clothingItems");
 const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
@@ -7,7 +6,7 @@ const {
   validateUserBody,
   validateLogin,
 } = require("../middlewares/validation");
-const { NotFoundError } = require("../utils/errors");
+const { NotFoundError } = require("../utils/errors/NotFoundError");
 
 router.use("/items", clothingItem);
 router.use("/users", userRouter);
