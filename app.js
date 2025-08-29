@@ -8,12 +8,10 @@ const { requestLogger, errorLogger } = require("./middlewares/logger");
 const errorHandler = require("./middlewares/error-handler");
 const mainRouter = require("./routes/index");
 
-const { PORT = 3001, MONGO_URI } = process.env;
-const app = express();
+const PORT = process.env.PORT || 3001;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/wtwr_db";
 
-if (!MONGO_URI) {
-  throw new Error("Missing MONGO_URI in environment variables");
-}
+const app = express();
 
 // Connect to MongoDB
 mongoose
